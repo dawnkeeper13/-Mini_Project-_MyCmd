@@ -10,6 +10,7 @@
 
 #define STR_LEN			256
 #define CMD_TOKEN_NUM	10
+#define DIR_LEN			MAX_PATH+1
 
 TCHAR ERROR_CMD[]
 = _T("'%s'은(는) 실행할 수 있는 프로그램이 아닙니다.\n");
@@ -56,11 +57,27 @@ int CmdProcessing(void)
 
 	if (!_tcscmp(cmdTokenList[0], _T("exit"))) { return TRUE; }
 
-	//else if (!_tcscmp(cmdTokenList[0], _T("추가되는 명령어 1"))) { }
+	// else if (!_tcscmp(cmdTokenList[0], _T("notepad"))) { }
 
 	//else if (!_tcscmp(cmdTokenList[0], _T("추가되는 명령어 2"))) { }
 
-	else { _tprintf(ERROR_CMD, cmdTokenList[0]); }
+	else {
+		BOOL status;
+		STARTUPINFO si = { 0 };
+		PROCESS_INFORMATION pi;
+		ZeroMemory(&pi, sizeof(pi));
+		status = CreateProcess(
+			NULL, cmdTokenList[0], NULL, NULL, 
+			TRUE, CREATE_NEW_CONSOLE, NULL, NULL,
+			&si, &pi
+		);
+		if (status)
+			return FALSE;
+		else {
+			_tprintf(ERROR_CMD, cmdTokenList[0]);
+			return FALSE;
+		}
+	}
 
 	//return FALSE;
 }
